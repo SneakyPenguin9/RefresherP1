@@ -1,0 +1,180 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+struct Record {
+    string ID;
+    string name;
+    int amount;
+    double price;
+
+};
+
+bool die(const string& msg);
+
+void printRec(Record rec);
+void printVec(vector<Record> const& rec);
+void printArr(Record* rec[], int size);
+void sortRec(vector<Record> const& rec, Record *sortedRec[], int sortBy);
+int findRec(string input, int option, vector<Record> rec);
+bool sortByID(const Record* lhs, const Record* rhs);
+bool sortByName(const Record* lhs, const Record* rhs);
+bool sortByAmount(const Record* lhs, const Record* rhs);
+bool sortByPrice(const Record* lhs, const Record* rhs);
+
+int main() {
+    vector<Record> records;
+    Record line;
+    int choice;
+    int sortBy;
+    int recPos;
+    Record** sortedRec = new Record * [records.size()];
+    string search;
+
+    ofstream write("Refresher.txt");
+    write << "997196478 StroLLer 25 134.78" << endl << "123123123 Cake 55 2.78" << endl;
+    write.close();
+    ifstream myfile("Refresher.txt");
+    if (!myfile.is_open()) {
+        die("file not open");
+    }
+
+    while (myfile >> line.ID >> line.name >> line.amount >> line.price) {
+        records.push_back(line);
+    }
+    if (!myfile.eof()) {
+        die("corrupt data");
+    }
+    for (int i = 0; i < records.size(); i++) {
+        sortedRec[i] = &records[i];
+    }
+    do{
+            cout << " 1:Print records." << endl
+                << " 2:Print sorted records." << endl
+                << " 3:Search for item." << endl
+                << " 4:Print inventory report." << endl
+                << " 5:Exit Program." << endl;
+            cin >> choice;
+        switch (choice) {
+
+        case 1:
+            printVec(records);
+            break;
+
+        case 2:
+            do {
+                cout << " Sort by: " << endl
+                    << "  1:ID" << endl
+                    << "  2:Name" << endl
+                    << "  3:Amount" << endl
+                    << "  4:Price" << endl
+                    << "  5:Go back." << endl;
+                cin >> sortBy;
+
+                if (sortBy < 1 || sortBy > 5) {
+                    cout << "invalid option" << endl;
+                }
+
+            } while (sortBy < 1 || sortBy > 5);
+            if (sortBy < 5) {
+                sortRec(records, sortedRec, sortBy);
+                printArr(sortedRec, records.size());
+            }
+            break;
+        case 3:
+            do {
+                cout << " Search by: " << endl
+                    << "  1:ID" << endl
+                    << "  2:Name" << endl
+                    << "  3:Go back." << endl;
+                cin >> sortBy;
+
+                if (sortBy < 1 || sortBy > 3) {
+                    cout << "invalid option" << endl;
+                }
+
+            } while (sortBy < 1 || sortBy > 3);
+            
+            if (sortBy == 1) {
+                cout << "Enter ID: ";
+                cin >> search;
+            }
+            else if (sortBy == 2) {
+                cout << "Enter Name: ";
+                cin >> search;
+            }
+            recPos = findRec(search, sortBy, records);
+            if (recPos == -1)
+                cout << "Record not found" << endl;
+            else
+                printRec(records[recPos]);
+
+            break;
+        case 4:
+            //stuff
+            break;
+        case 5:
+            break;
+        default:
+            cout << "Invalid option" << endl;
+        }
+    } while (choice != 5);
+}
+
+bool die(const string& msg) {
+    cout << "Error: " << msg << "\n";
+    exit(EXIT_FAILURE);
+}
+
+void printRec(Record rec) {
+    cout << rec.ID << " " << rec.name << " " << rec.amount << " " << rec.price << "\n";
+}
+
+//instructions for sort function
+bool sortByID(const Record* lhs, const Record* rhs) { return lhs->ID < rhs->ID; }
+
+bool sortByName(const Record* lhs, const Record* rhs) { return lhs->name < rhs->name; }
+
+bool sortByAmount(const Record* lhs, const Record* rhs) { return lhs->amount < rhs->amount; }
+
+bool sortByPrice(const Record* lhs, const Record* rhs) { return lhs->price < rhs->price; }
+
+void printVec(vector<Record> const& rec) {
+    for (int i = 0; i < rec.size(); i++)
+        printRec(rec[i]);
+}
+
+void sortRec(vector<Record> const& rec, Record *sortedRec[], int sortBy) {
+    if (sortBy == 1)
+        sort(sortedRec, sortedRec+rec.size(), sortByID);
+    else if (sortBy == 2)
+        sort(sortedRec, sortedRec + rec.size(), sortByName);
+    else if (sortBy == 3)
+        sort(sortedRec, sortedRec + rec.size(), sortByAmount);
+    else
+        sort(sortedRec, sortedRec + rec.size(), sortByPrice);
+}
+
+void printArr(Record* rec[], int size) {
+    for (int i = 0; i < size; i++)
+        printRec(*rec[i]);
+}
+
+int findRec(string input, int option, vector<Record> rec) {
+    for (int i = 0; i < rec.size(); i++) {
+        if (option == 1) {
+            if (rec[i].ID == input) {
+                return i;
+            }
+        }
+        else {
+            if (rec[i].ID == input) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
